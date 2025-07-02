@@ -3,7 +3,8 @@ import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, LogOut, Bot, FileText } from 'lucide-react';
+import { Loader2, LogOut, FileText } from 'lucide-react';
+import ispaniBotIcon from '@/assets/ispanibot-icon.png';
 
 const Dashboard = () => {
   const { user, loading, signOut } = useAuth();
@@ -32,7 +33,7 @@ const Dashboard = () => {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-hero rounded-xl flex items-center justify-center shadow-soft">
-              <Bot className="h-5 w-5 text-white" />
+              <img src={ispaniBotIcon} alt="ISpaniBot" className="h-6 w-6" />
             </div>
             <div>
               <h1 className="text-xl font-bold bg-gradient-hero bg-clip-text text-transparent">
