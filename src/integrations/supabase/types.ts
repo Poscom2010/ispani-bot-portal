@@ -15,18 +15,21 @@ export type Database = {
           freelance_title: string | null
           full_name: string | null
           id: string
+          verified: boolean
         }
         Insert: {
           created_at?: string | null
           freelance_title?: string | null
           full_name?: string | null
           id: string
+          verified?: boolean
         }
         Update: {
           created_at?: string | null
           freelance_title?: string | null
           full_name?: string | null
           id?: string
+          verified?: boolean
         }
         Relationships: []
       }

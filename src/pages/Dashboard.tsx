@@ -6,11 +6,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, LogOut, FileText, Sparkles, Users, Briefcase, X } from 'lucide-react';
+import { Loader2, LogOut, FileText, Sparkles, Users, Briefcase, X, UserCheck } from 'lucide-react';
 import { format } from 'date-fns';
 import ispaniBotIcon from '@/assets/ispanibot-icon.png';
 
@@ -29,6 +32,22 @@ const Dashboard = () => {
   if (!loading && !user) {
     return <Navigate to="/auth" replace />;
   }
+
+  // Fetch user profile query
+  const { data: userProfile } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user?.id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
 
   // Fetch proposals query
   const { data: proposals, isLoading: proposalsLoading, refetch } = useQuery({
@@ -159,14 +178,66 @@ const Dashboard = () => {
             <div>
               <h1 className="text-2xl font-bold text-foreground">ISpaniBot</h1>
               <p className="text-sm text-muted-foreground">
-                Welcome back, {user?.email}
+                Welcome back, {userProfile?.full_name || user?.email}
               </p>
             </div>
             
-            <Button variant="ghost" onClick={handleSignOut}>
-              <LogOut className="h-4 w-4" />
-              Sign Out
-            </Button>
+            <div className="flex items-center space-x-4">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" className="relative p-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src="" alt="User avatar" />
+                      <AvatarFallback className="text-sm">
+                        {userProfile?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    {userProfile?.verified && (
+                      <div className="absolute -top-1 -right-1">
+                        <UserCheck className="h-4 w-4 text-primary bg-background rounded-full p-0.5" />
+                      </div>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64" align="end">
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src="" alt="User avatar" />
+                        <AvatarFallback className="text-lg">
+                          {userProfile?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <p className="font-medium text-foreground">
+                          {userProfile?.full_name || 'User'}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {user?.email}
+                        </p>
+                        {userProfile?.freelance_title && (
+                          <p className="text-xs text-muted-foreground">
+                            {userProfile.freelance_title}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {userProfile?.verified && (
+                      <Badge variant="secondary" className="w-full justify-center">
+                        <UserCheck className="h-3 w-3 mr-1" />
+                        Verified Client
+                      </Badge>
+                    )}
+                    
+                    <Button variant="ghost" onClick={handleSignOut} className="w-full justify-start">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign Out
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         </header>
 
