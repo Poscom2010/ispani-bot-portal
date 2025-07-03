@@ -10,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, LogOut, FileText, Sparkles } from 'lucide-react';
+import { Loader2, LogOut, FileText, Sparkles, Users, Briefcase, X } from 'lucide-react';
 import { format } from 'date-fns';
 import ispaniBotIcon from '@/assets/ispanibot-icon.png';
 
@@ -22,6 +22,8 @@ const Dashboard = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [proposalTitle, setProposalTitle] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [selectedProposal, setSelectedProposal] = useState(null);
 
   // Redirect if not authenticated
   if (!loading && !user) {
@@ -93,12 +95,17 @@ const Dashboard = () => {
       console.error('Error generating proposal:', error);
       toast({
         title: "Generation Failed",
-        description: "There was an error generating your proposal. Please try again.",
+        description: "Oops! Something went wrong while generating the proposal.",
         variant: "destructive",
       });
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleProposalClick = (proposal) => {
+    setSelectedProposal(proposal);
+    setIsViewerOpen(true);
   };
 
   if (loading) {
@@ -110,167 +117,258 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
-      {/* Header */}
-      <header className="border-b bg-card/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+    <div className="min-h-screen bg-gradient-subtle flex">
+      {/* Sidebar */}
+      <aside className="w-64 bg-card/80 backdrop-blur-sm border-r border-border">
+        <div className="p-6">
+          <div className="flex items-center space-x-3 mb-8">
             <div className="w-10 h-10 bg-gradient-hero rounded-xl flex items-center justify-center shadow-soft">
               <img src={ispaniBotIcon} alt="ISpaniBot" className="h-6 w-6" />
             </div>
+            <h1 className="text-xl font-bold bg-gradient-hero bg-clip-text text-transparent">
+              ISpaniBot
+            </h1>
+          </div>
+          
+          <nav className="space-y-2">
+            <div className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-primary/10 text-primary">
+              <FileText className="h-5 w-5" />
+              <span className="font-medium">Proposals</span>
+            </div>
+            
+            <div className="flex items-center space-x-3 px-3 py-2 rounded-lg text-muted-foreground cursor-not-allowed">
+              <Users className="h-5 w-5" />
+              <span>Writing Assistant</span>
+              <span className="ml-auto text-xs bg-muted px-2 py-1 rounded">Soon</span>
+            </div>
+            
+            <div className="flex items-center space-x-3 px-3 py-2 rounded-lg text-muted-foreground cursor-not-allowed">
+              <Briefcase className="h-5 w-5" />
+              <span>Job Matching</span>
+              <span className="ml-auto text-xs bg-muted px-2 py-1 rounded">Soon</span>
+            </div>
+          </nav>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <header className="border-b bg-card/80 backdrop-blur-sm">
+          <div className="px-6 py-4 flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-                ISpaniBot
-              </h1>
+              <h1 className="text-2xl font-bold text-foreground">ISpaniBot</h1>
               <p className="text-sm text-muted-foreground">
                 Welcome back, {user?.email}
               </p>
             </div>
-          </div>
-          
-          <Button variant="ghost" onClick={handleSignOut}>
-            <LogOut className="h-4 w-4" />
-            Sign Out
-          </Button>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto space-y-8">
-          {/* Welcome Section & Primary Action */}
-          <div className="text-center space-y-6">
-            <div className="space-y-4">
-              <h2 className="text-3xl font-bold text-foreground">
-                My Proposals
-              </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Manage and track your AI-generated proposals. Create, edit, and organize your content with the power of ISpaniBot.
-              </p>
-            </div>
             
-            {/* Primary Action Button */}
-            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-              <DialogTrigger asChild>
-                <Button variant="hero" size="lg" className="shadow-glow">
-                  <Sparkles className="h-5 w-5" />
-                  ✨ Create New Proposal
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px]">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl font-bold text-center">Create a New Proposal</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-6 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Proposal Title</Label>
-                    <Input
-                      id="title"
-                      value={proposalTitle}
-                      onChange={(e) => setProposalTitle(e.target.value)}
-                      placeholder="Enter your proposal title..."
-                      className="w-full"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Briefly describe the project...</Label>
-                    <Textarea
-                      id="description"
-                      value={projectDescription}
-                      onChange={(e) => setProjectDescription(e.target.value)}
-                      placeholder="Describe your project requirements, goals, and any specific details..."
-                      className="w-full min-h-[120px] resize-none"
-                    />
-                  </div>
-                  <Button 
-                    onClick={handleGenerateProposal}
-                    disabled={isGenerating}
-                    className="w-full"
-                    variant="hero"
-                    size="lg"
-                  >
-                    {isGenerating ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        Generate with AI
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <Button variant="ghost" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </Button>
           </div>
+        </header>
 
-          {/* Proposals Grid */}
-          {proposalsLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        {/* Main Content */}
+        <main className="flex-1 p-6">
+          <div className="max-w-6xl mx-auto space-y-8">
+            {/* Welcome Section & Primary Action */}
+            <div className="text-center space-y-6">
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold text-foreground">
+                  My Proposals
+                </h2>
+                <p className="text-muted-foreground max-w-2xl mx-auto">
+                  Manage and track your AI-generated proposals. Create, edit, and organize your content with the power of ISpaniBot.
+                </p>
+              </div>
+              
+              {/* Primary Action Button */}
+              <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="hero" size="lg" className="shadow-glow">
+                    <Sparkles className="h-5 w-5" />
+                    ✨ Create New Proposal
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[500px]">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl font-bold text-center">Create a New Proposal</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-6 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Proposal Title</Label>
+                      <Input
+                        id="title"
+                        value={proposalTitle}
+                        onChange={(e) => setProposalTitle(e.target.value)}
+                        placeholder="Enter your proposal title..."
+                        className="w-full"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="description">Briefly describe the project...</Label>
+                      <Textarea
+                        id="description"
+                        value={projectDescription}
+                        onChange={(e) => setProjectDescription(e.target.value)}
+                        placeholder="Describe your project requirements, goals, and any specific details..."
+                        className="w-full min-h-[120px] resize-none"
+                      />
+                    </div>
+                    <Button 
+                      onClick={handleGenerateProposal}
+                      disabled={isGenerating}
+                      className="w-full"
+                      variant="hero"
+                      size="lg"
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4 mr-2" />
+                          Generate with AI
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
-          ) : proposals && proposals.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {proposals.map((proposal) => (
-                <Card key={proposal.id} className="shadow-card border-0 bg-card/80 backdrop-blur-sm hover:shadow-glow transition-all duration-300">
-                  <CardHeader>
-                    <CardTitle className="text-lg font-bold line-clamp-2">
-                      {proposal.title}
-                    </CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground">
-                      {format(new Date(proposal.created_at), 'MMMM d, yyyy')}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground line-clamp-3">
-                      {proposal.initial_prompt}
+
+            {/* Proposals Grid */}
+            {proposalsLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center space-y-4">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+                  <p className="text-muted-foreground">Loading proposals...</p>
+                </div>
+              </div>
+            ) : proposals && proposals.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {proposals.map((proposal) => (
+                  <Card 
+                    key={proposal.id} 
+                    className="shadow-card border-0 bg-card/80 backdrop-blur-sm hover:shadow-glow transition-all duration-300 cursor-pointer"
+                    onClick={() => handleProposalClick(proposal)}
+                  >
+                    <CardHeader>
+                      <CardTitle className="text-lg font-bold line-clamp-2">
+                        {proposal.title}
+                      </CardTitle>
+                      <CardDescription className="text-sm text-muted-foreground">
+                        {format(new Date(proposal.created_at), 'MMMM d, yyyy')}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground line-clamp-3">
+                        {proposal.initial_prompt}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
+                <CardContent className="py-12">
+                  <div className="text-center space-y-4">
+                    <div className="mx-auto w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mb-4">
+                      <FileText className="h-8 w-8 text-white" />
+                    </div>
+                    <p className="text-muted-foreground text-lg">
+                      Welcome! You have no proposals yet. Click '✨ Create New Proposal' to get started!
                     </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Quick Stats */}
+            {proposals && proposals.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
+                  <CardContent className="p-6 text-center">
+                    <div className="text-2xl font-bold text-primary">{proposals?.length || 0}</div>
+                    <p className="text-sm text-muted-foreground">Total Proposals</p>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          ) : (
-            <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
-              <CardContent className="py-12">
-                <div className="text-center space-y-4">
-                  <div className="mx-auto w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mb-4">
-                    <FileText className="h-8 w-8 text-white" />
-                  </div>
-                  <p className="text-muted-foreground text-lg">
-                    No proposals yet. Create your first one above!
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
-              <CardContent className="p-6 text-center">
-                <div className="text-2xl font-bold text-primary">{proposals?.length || 0}</div>
-                <p className="text-sm text-muted-foreground">Total Proposals</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
-              <CardContent className="p-6 text-center">
-                <div className="text-2xl font-bold text-accent">{proposals?.length || 0}</div>
-                <p className="text-sm text-muted-foreground">Active Projects</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
-              <CardContent className="p-6 text-center">
-                <div className="text-2xl font-bold text-primary-glow">0</div>
-                <p className="text-sm text-muted-foreground">Completed</p>
-              </CardContent>
-            </Card>
+                
+                <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
+                  <CardContent className="p-6 text-center">
+                    <div className="text-2xl font-bold text-accent">{proposals?.length || 0}</div>
+                    <p className="text-sm text-muted-foreground">Active Projects</p>
+                  </CardContent>
+                </Card>
+                
+                <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
+                  <CardContent className="p-6 text-center">
+                    <div className="text-2xl font-bold text-primary-glow">0</div>
+                    <p className="text-sm text-muted-foreground">Completed</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
+
+      {/* Proposal Viewer Modal */}
+      <Dialog open={isViewerOpen} onOpenChange={setIsViewerOpen}>
+        <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">
+              {selectedProposal?.title}
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-4 top-4"
+              onClick={() => setIsViewerOpen(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </DialogHeader>
+          
+          {selectedProposal?.generated_content && (
+            <div className="space-y-6 py-4">
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Overview</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  {selectedProposal.generated_content.overview || 'No overview available.'}
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Key Deliverables</h3>
+                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                  {selectedProposal.generated_content.deliverables?.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  )) || <li>No deliverables specified.</li>}
+                </ul>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Estimated Timeline</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  {selectedProposal.generated_content.timeline || 'No timeline specified.'}
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Price Suggestion</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  {selectedProposal.generated_content.price || 'No price suggestion available.'}
+                </p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
