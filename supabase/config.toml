@@ -1,1 +1,4 @@
 project_id = "uufbuatrnoprynesbirw"
+
+[functions.ispanibot-generator]
+verify_jwt = true

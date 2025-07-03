@@ -324,14 +324,6 @@ const Dashboard = () => {
             <DialogTitle className="text-2xl font-bold">
               {selectedProposal?.title}
             </DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-4 top-4"
-              onClick={() => setIsViewerOpen(false)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
           </DialogHeader>
           
           {selectedProposal?.generated_content && (
@@ -361,7 +353,7 @@ const Dashboard = () => {
               
               <div>
                 <h3 className="text-lg font-semibold mb-3">Price Suggestion</h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="font-bold text-foreground">
                   {selectedProposal.generated_content.price || 'No price suggestion available.'}
                 </p>
               </div>
