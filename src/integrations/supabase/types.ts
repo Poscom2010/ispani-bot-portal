@@ -9,6 +9,50 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      earnings: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          payment_date: string | null
+          proposal_id: string | null
+          status: Database["public"]["Enums"]["earning_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          payment_date?: string | null
+          proposal_id?: string | null
+          status?: Database["public"]["Enums"]["earning_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          payment_date?: string | null
+          proposal_id?: string | null
+          status?: Database["public"]["Enums"]["earning_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "earnings_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -33,28 +77,73 @@ export type Database = {
         }
         Relationships: []
       }
+      proposal_metrics: {
+        Row: {
+          approved_proposals: number | null
+          completed_proposals: number | null
+          id: string
+          last_updated: string
+          pending_proposals: number | null
+          total_earnings: number | null
+          total_proposals: number | null
+          user_id: string
+        }
+        Insert: {
+          approved_proposals?: number | null
+          completed_proposals?: number | null
+          id?: string
+          last_updated?: string
+          pending_proposals?: number | null
+          total_earnings?: number | null
+          total_proposals?: number | null
+          user_id: string
+        }
+        Update: {
+          approved_proposals?: number | null
+          completed_proposals?: number | null
+          id?: string
+          last_updated?: string
+          pending_proposals?: number | null
+          total_earnings?: number | null
+          total_proposals?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       proposals: {
         Row: {
+          actual_value: number | null
+          completion_date: string | null
           created_at: string | null
+          estimated_value: number | null
           generated_content: Json
           id: string
           initial_prompt: string
+          status: Database["public"]["Enums"]["proposal_status"]
           title: string
           user_id: string | null
         }
         Insert: {
+          actual_value?: number | null
+          completion_date?: string | null
           created_at?: string | null
+          estimated_value?: number | null
           generated_content: Json
           id?: string
           initial_prompt: string
+          status?: Database["public"]["Enums"]["proposal_status"]
           title: string
           user_id?: string | null
         }
         Update: {
+          actual_value?: number | null
+          completion_date?: string | null
           created_at?: string | null
+          estimated_value?: number | null
           generated_content?: Json
           id?: string
           initial_prompt?: string
+          status?: Database["public"]["Enums"]["proposal_status"]
           title?: string
           user_id?: string | null
         }
@@ -76,7 +165,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      earning_status: "pending" | "paid" | "cancelled"
+      proposal_status:
+        | "draft"
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -191,6 +286,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      earning_status: ["pending", "paid", "cancelled"],
+      proposal_status: [
+        "draft",
+        "pending",
+        "approved",
+        "rejected",
+        "completed",
+      ],
+    },
   },
 } as const
