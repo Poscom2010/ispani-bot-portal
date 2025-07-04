@@ -244,6 +244,69 @@ const Dashboard = () => {
         {/* Main Content */}
         <main className="flex-1 p-6">
           <div className="max-w-6xl mx-auto space-y-8">
+            {/* Enhanced Stats Dashboard */}
+            {proposals && proposals.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="shadow-card border-0 bg-gradient-primary/10 backdrop-blur-sm hover:shadow-glow transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Proposals Done</p>
+                        <div className="text-2xl font-bold text-primary">{proposals?.length || 0}</div>
+                      </div>
+                      <div className="h-12 w-12 bg-primary/20 rounded-xl flex items-center justify-center">
+                        <CheckCircle className="h-6 w-6 text-primary" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="shadow-card border-0 bg-gradient-hero/10 backdrop-blur-sm hover:shadow-glow transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Approved</p>
+                        <div className="text-2xl font-bold text-accent">{Math.floor((proposals?.length || 0) * 0.7)}</div>
+                      </div>
+                      <div className="h-12 w-12 bg-accent/20 rounded-xl flex items-center justify-center">
+                        <TrendingUp className="h-6 w-6 text-accent" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="shadow-card border-0 bg-gradient-primary/5 backdrop-blur-sm hover:shadow-glow transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Pending</p>
+                        <div className="text-2xl font-bold text-primary-glow">{Math.floor((proposals?.length || 0) * 0.3)}</div>
+                      </div>
+                      <div className="h-12 w-12 bg-primary-glow/20 rounded-xl flex items-center justify-center">
+                        <Clock className="h-6 w-6 text-primary-glow" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="shadow-card border-0 bg-gradient-hero/5 backdrop-blur-sm hover:shadow-glow transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Total Earnings</p>
+                        <div className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
+                          ${((proposals?.length || 0) * 2500).toLocaleString()}
+                        </div>
+                      </div>
+                      <div className="h-12 w-12 bg-gradient-hero/20 rounded-xl flex items-center justify-center">
+                        <DollarSign className="h-6 w-6 text-accent" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
             {/* Welcome Section & Primary Action */}
             <div className="text-center space-y-6">
               <div className="space-y-4">
@@ -359,66 +422,6 @@ const Dashboard = () => {
               </Card>
             )}
 
-            {/* Enhanced Stats Dashboard */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="shadow-card border-0 bg-gradient-primary/10 backdrop-blur-sm hover:shadow-glow transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-1">Proposals Done</p>
-                      <div className="text-2xl font-bold text-primary">{proposals?.length || 0}</div>
-                    </div>
-                    <div className="h-12 w-12 bg-primary/20 rounded-xl flex items-center justify-center">
-                      <CheckCircle className="h-6 w-6 text-primary" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="shadow-card border-0 bg-gradient-hero/10 backdrop-blur-sm hover:shadow-glow transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-1">Approved</p>
-                      <div className="text-2xl font-bold text-accent">{Math.floor((proposals?.length || 0) * 0.7)}</div>
-                    </div>
-                    <div className="h-12 w-12 bg-accent/20 rounded-xl flex items-center justify-center">
-                      <TrendingUp className="h-6 w-6 text-accent" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="shadow-card border-0 bg-gradient-primary/5 backdrop-blur-sm hover:shadow-glow transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-1">Pending</p>
-                      <div className="text-2xl font-bold text-primary-glow">{Math.floor((proposals?.length || 0) * 0.3)}</div>
-                    </div>
-                    <div className="h-12 w-12 bg-primary-glow/20 rounded-xl flex items-center justify-center">
-                      <Clock className="h-6 w-6 text-primary-glow" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="shadow-card border-0 bg-gradient-hero/5 backdrop-blur-sm hover:shadow-glow transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-1">Total Earnings</p>
-                      <div className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-                        ${((proposals?.length || 0) * 2500).toLocaleString()}
-                      </div>
-                    </div>
-                    <div className="h-12 w-12 bg-gradient-hero/20 rounded-xl flex items-center justify-center">
-                      <DollarSign className="h-6 w-6 text-accent" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
           </div>
         </main>
       </div>
