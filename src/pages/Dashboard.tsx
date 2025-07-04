@@ -16,10 +16,15 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, LogOut, FileText, Sparkles, Users, Briefcase, X, UserCheck, CheckCircle, Clock, DollarSign, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
 import ispaniBotIcon from '@/assets/ispanibot-icon.png';
-
 const Dashboard = () => {
-  const { user, loading, signOut } = useAuth();
-  const { toast } = useToast();
+  const {
+    user,
+    loading,
+    signOut
+  } = useAuth();
+  const {
+    toast
+  } = useToast();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -34,70 +39,74 @@ const Dashboard = () => {
   }
 
   // Fetch user profile query
-  const { data: userProfile } = useQuery({
+  const {
+    data: userProfile
+  } = useQuery({
     queryKey: ['profile', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user?.id)
-        .single();
-      
+      const {
+        data,
+        error
+      } = await supabase.from('profiles').select('*').eq('id', user?.id).single();
       if (error) throw error;
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id
   });
 
   // Fetch proposals query
-  const { data: proposals, isLoading: proposalsLoading, refetch } = useQuery({
+  const {
+    data: proposals,
+    isLoading: proposalsLoading,
+    refetch
+  } = useQuery({
     queryKey: ['proposals', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('proposals')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
+      const {
+        data,
+        error
+      } = await supabase.from('proposals').select('*').order('created_at', {
+        ascending: false
+      });
       if (error) throw error;
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id
   });
-
   const handleSignOut = async () => {
     await signOut();
   };
-
   const handleGenerateProposal = async () => {
     if (!proposalTitle.trim() || !projectDescription.trim()) {
       toast({
         title: "Missing Information",
         description: "Please fill in both the title and description fields.",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     setIsGenerating(true);
-
     try {
       // Action 1: Invoke Supabase Edge Function
-      const { data: generatedContent, error: functionError } = await supabase.functions.invoke('ispanibot-generator', {
-        body: { userPrompt: projectDescription },
+      const {
+        data: generatedContent,
+        error: functionError
+      } = await supabase.functions.invoke('ispanibot-generator', {
+        body: {
+          userPrompt: projectDescription
+        }
       });
-
       if (functionError) throw functionError;
 
       // Action 2: Insert Row into Supabase
-      const { error: insertError } = await supabase
-        .from('proposals')
-        .insert({
-          title: proposalTitle,
-          initial_prompt: projectDescription,
-          generated_content: generatedContent,
-          user_id: user?.id,
-        });
-
+      const {
+        error: insertError
+      } = await supabase.from('proposals').insert({
+        title: proposalTitle,
+        initial_prompt: projectDescription,
+        generated_content: generatedContent,
+        user_id: user?.id
+      });
       if (insertError) throw insertError;
 
       // Action 3: Finalize
@@ -108,35 +117,29 @@ const Dashboard = () => {
 
       toast({
         title: "Proposal Generated Successfully!",
-        description: "Your new proposal has been created and saved.",
+        description: "Your new proposal has been created and saved."
       });
     } catch (error) {
       console.error('Error generating proposal:', error);
       toast({
         title: "Generation Failed",
         description: "Oops! Something went wrong while generating the proposal.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsGenerating(false);
     }
   };
-
-  const handleProposalClick = (proposal) => {
+  const handleProposalClick = proposal => {
     setSelectedProposal(proposal);
     setIsViewerOpen(true);
   };
-
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-subtle">
+    return <div className="min-h-screen flex items-center justify-center bg-gradient-subtle">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-gradient-dark flex">
+  return <div className="min-h-screen bg-gradient-dark flex">
       {/* Sidebar */}
       <aside className="w-64 bg-card/90 backdrop-blur-lg border-r border-border shadow-card">
         <div className="p-6">
@@ -192,11 +195,9 @@ const Dashboard = () => {
                         {userProfile?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
-                    {userProfile?.verified && (
-                      <div className="absolute -top-1 -right-1">
+                    {userProfile?.verified && <div className="absolute -top-1 -right-1">
                         <UserCheck className="h-4 w-4 text-primary bg-background rounded-full p-0.5" />
-                      </div>
-                    )}
+                      </div>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-64" align="end">
@@ -215,20 +216,16 @@ const Dashboard = () => {
                         <p className="text-sm text-muted-foreground">
                           {user?.email}
                         </p>
-                        {userProfile?.freelance_title && (
-                          <p className="text-xs text-muted-foreground">
+                        {userProfile?.freelance_title && <p className="text-xs text-muted-foreground">
                             {userProfile.freelance_title}
-                          </p>
-                        )}
+                          </p>}
                       </div>
                     </div>
                     
-                    {userProfile?.verified && (
-                      <Badge variant="secondary" className="w-full justify-center">
+                    {userProfile?.verified && <Badge variant="secondary" className="w-full justify-center">
                         <UserCheck className="h-3 w-3 mr-1" />
                         Verified Client
-                      </Badge>
-                    )}
+                      </Badge>}
                     
                     <Button variant="ghost" onClick={handleSignOut} className="w-full justify-start">
                       <LogOut className="h-4 w-4 mr-2" />
@@ -245,7 +242,7 @@ const Dashboard = () => {
         <main className="flex-1 p-6">
           <div className="max-w-6xl mx-auto space-y-8">
             {/* Enhanced Stats Dashboard */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 bg-gray-400">
                 <Card className="shadow-card border-0 bg-gradient-primary/10 backdrop-blur-sm hover:shadow-glow transition-all duration-300">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -331,42 +328,20 @@ const Dashboard = () => {
                   <div className="space-y-6 py-4">
                     <div className="space-y-2">
                       <Label htmlFor="title">Proposal Title</Label>
-                      <Input
-                        id="title"
-                        value={proposalTitle}
-                        onChange={(e) => setProposalTitle(e.target.value)}
-                        placeholder="Enter your proposal title..."
-                        className="w-full"
-                      />
+                      <Input id="title" value={proposalTitle} onChange={e => setProposalTitle(e.target.value)} placeholder="Enter your proposal title..." className="w-full" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="description">Briefly describe the project...</Label>
-                      <Textarea
-                        id="description"
-                        value={projectDescription}
-                        onChange={(e) => setProjectDescription(e.target.value)}
-                        placeholder="Describe your project requirements, goals, and any specific details..."
-                        className="w-full min-h-[120px] resize-none"
-                      />
+                      <Textarea id="description" value={projectDescription} onChange={e => setProjectDescription(e.target.value)} placeholder="Describe your project requirements, goals, and any specific details..." className="w-full min-h-[120px] resize-none" />
                     </div>
-                    <Button 
-                      onClick={handleGenerateProposal}
-                      disabled={isGenerating}
-                      className="w-full"
-                      variant="hero"
-                      size="lg"
-                    >
-                      {isGenerating ? (
-                        <>
+                    <Button onClick={handleGenerateProposal} disabled={isGenerating} className="w-full" variant="hero" size="lg">
+                      {isGenerating ? <>
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
                           Generating...
-                        </>
-                      ) : (
-                        <>
+                        </> : <>
                           <Sparkles className="h-4 w-4 mr-2" />
                           Generate with AI
-                        </>
-                      )}
+                        </>}
                     </Button>
                   </div>
                 </DialogContent>
@@ -374,21 +349,13 @@ const Dashboard = () => {
             </div>
 
             {/* Proposals Grid */}
-            {proposalsLoading ? (
-              <div className="flex items-center justify-center py-12">
+            {proposalsLoading ? <div className="flex items-center justify-center py-12">
                 <div className="text-center space-y-4">
                   <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
                   <p className="text-muted-foreground">Loading proposals...</p>
                 </div>
-              </div>
-            ) : proposals && proposals.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {proposals.map((proposal) => (
-                  <Card 
-                    key={proposal.id} 
-                    className="shadow-card border-0 bg-card/80 backdrop-blur-sm hover:shadow-glow transition-all duration-300 cursor-pointer"
-                    onClick={() => handleProposalClick(proposal)}
-                  >
+              </div> : proposals && proposals.length > 0 ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {proposals.map(proposal => <Card key={proposal.id} className="shadow-card border-0 bg-card/80 backdrop-blur-sm hover:shadow-glow transition-all duration-300 cursor-pointer" onClick={() => handleProposalClick(proposal)}>
                     <CardHeader>
                       <CardTitle className="text-lg font-bold line-clamp-2">
                         {proposal.title}
@@ -402,11 +369,8 @@ const Dashboard = () => {
                         {proposal.initial_prompt}
                       </p>
                     </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
+                  </Card>)}
+              </div> : <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
                 <CardContent className="py-12">
                   <div className="text-center space-y-4">
                     <div className="mx-auto w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mb-4">
@@ -417,8 +381,7 @@ const Dashboard = () => {
                     </p>
                   </div>
                 </CardContent>
-              </Card>
-            )}
+              </Card>}
 
           </div>
         </main>
@@ -433,8 +396,7 @@ const Dashboard = () => {
             </DialogTitle>
           </DialogHeader>
           
-          {selectedProposal?.generated_content && (
-            <div className="space-y-6 py-4">
+          {selectedProposal?.generated_content && <div className="space-y-6 py-4">
               <div>
                 <h3 className="text-lg font-semibold mb-3">Overview</h3>
                 <p className="text-muted-foreground leading-relaxed">
@@ -445,9 +407,7 @@ const Dashboard = () => {
               <div>
                 <h3 className="text-lg font-semibold mb-3">Key Deliverables</h3>
                 <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                  {selectedProposal.generated_content.deliverables?.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  )) || <li>No deliverables specified.</li>}
+                  {selectedProposal.generated_content.deliverables?.map((item, index) => <li key={index}>{item}</li>) || <li>No deliverables specified.</li>}
                 </ul>
               </div>
               
@@ -464,12 +424,9 @@ const Dashboard = () => {
                   {selectedProposal.generated_content.price || 'No price suggestion available.'}
                 </p>
               </div>
-            </div>
-          )}
+            </div>}
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>;
 };
-
 export default Dashboard;
