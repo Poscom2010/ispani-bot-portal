@@ -245,8 +245,7 @@ const Dashboard = () => {
         <main className="flex-1 p-6">
           <div className="max-w-6xl mx-auto space-y-8">
             {/* Enhanced Stats Dashboard */}
-            {proposals && proposals.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <Card className="shadow-card border-0 bg-gradient-primary/10 backdrop-blur-sm hover:shadow-glow transition-all duration-300">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -305,7 +304,6 @@ const Dashboard = () => {
                   </CardContent>
                 </Card>
               </div>
-            )}
 
             {/* Welcome Section & Primary Action */}
             <div className="text-center space-y-6">
