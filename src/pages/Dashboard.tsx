@@ -141,33 +141,33 @@ const Dashboard = () => {
   }
   return <div className="min-h-screen bg-gradient-dark flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-card/90 backdrop-blur-lg border-r border-border shadow-card">
+      <aside className="w-64 bg-gradient-to-b from-card/95 to-background/80 backdrop-blur-lg border-r border-border shadow-2xl">
         <div className="p-6">
           <div className="flex items-center space-x-3 mb-8">
             <div className="w-10 h-10 bg-gradient-hero rounded-xl flex items-center justify-center shadow-glow">
               <img src={ispaniBotIcon} alt="ISpaniBot" className="h-6 w-6" />
             </div>
-            <h1 className="text-xl font-bold bg-gradient-hero bg-clip-text text-transparent">
+            <h1 className="text-xl font-bold bg-gradient-hero bg-clip-text text-transparent tracking-tight">
               ISpaniBot
             </h1>
           </div>
           
           <nav className="space-y-2">
-            <div className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-primary/10 text-primary">
+            <div className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-primary/10 text-primary shadow transition-all duration-200 hover:bg-primary/20">
               <FileText className="h-5 w-5" />
               <span className="font-medium">Proposals</span>
             </div>
             
-            <div className="flex items-center space-x-3 px-3 py-2 rounded-lg text-muted-foreground cursor-not-allowed">
-              <Users className="h-5 w-5" />
-              <span>Writing Assistant</span>
-              <span className="ml-auto text-xs bg-muted px-2 py-1 rounded">Soon</span>
+            <div className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-gradient-to-r from-yellow-300/80 via-yellow-200/80 to-primary/60 text-yellow-900 shadow-lg border border-yellow-300/60 cursor-not-allowed opacity-100 hover:scale-105 transition-all duration-200">
+              <Users className="h-5 w-5 animate-bounce" />
+              <span className="font-semibold">Writing Assistant</span>
+              <span className="ml-auto text-xs bg-yellow-100 text-yellow-900 px-2 py-1 rounded shadow">Soon</span>
             </div>
             
-            <div className="flex items-center space-x-3 px-3 py-2 rounded-lg text-muted-foreground cursor-not-allowed">
-              <Briefcase className="h-5 w-5" />
-              <span>Job Matching</span>
-              <span className="ml-auto text-xs bg-muted px-2 py-1 rounded">Soon</span>
+            <div className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-gradient-to-r from-pink-400/80 via-pink-300/80 to-primary/60 text-pink-900 shadow-lg border border-pink-300/60 cursor-not-allowed opacity-100 hover:scale-105 transition-all duration-200">
+              <Briefcase className="h-5 w-5 animate-bounce" />
+              <span className="font-semibold">Job Matching</span>
+              <span className="ml-auto text-xs bg-pink-100 text-pink-900 px-2 py-1 rounded shadow">Soon</span>
             </div>
           </nav>
         </div>
@@ -179,17 +179,17 @@ const Dashboard = () => {
         <header className="border-b bg-card/90 backdrop-blur-lg shadow-card">
           <div className="px-6 py-4 flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">ISpaniBot</h1>
-              <p className="text-sm text-muted-foreground">
-                Welcome back, {userProfile?.full_name || user?.email}
+              <h1 className="text-2xl font-extrabold bg-gradient-hero bg-clip-text text-transparent tracking-tight">ISpaniBot</h1>
+              <p className="text-sm text-muted-foreground font-medium mt-1">
+                Welcome back, <span className="font-semibold text-primary">{userProfile?.full_name || user?.email}</span>
               </p>
             </div>
             
             <div className="flex items-center space-x-4">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="ghost" className="relative p-2">
-                    <Avatar className="h-8 w-8">
+                  <Button variant="ghost" className="relative p-2 rounded-full hover:bg-primary/10 transition-all duration-200">
+                    <Avatar className="h-9 w-9 border-2 border-primary shadow-glow transition-transform duration-200 hover:scale-105">
                       <AvatarImage src="" alt="User avatar" />
                       <AvatarFallback className="text-sm">
                         {userProfile?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
@@ -200,36 +200,20 @@ const Dashboard = () => {
                       </div>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-64" align="end">
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src="" alt="User avatar" />
-                        <AvatarFallback className="text-lg">
-                          {userProfile?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <p className="font-medium text-foreground">
-                          {userProfile?.full_name || 'User'}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {user?.email}
-                        </p>
-                        {userProfile?.freelance_title && <p className="text-xs text-muted-foreground">
-                            {userProfile.freelance_title}
-                          </p>}
-                      </div>
+                <PopoverContent className="w-56">
+                  <div className="flex flex-col items-center space-y-2">
+                    <Avatar className="h-12 w-12 border-2 border-primary">
+                      <AvatarImage src="" alt="User avatar" />
+                      <AvatarFallback className="text-lg">
+                        {userProfile?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="text-center">
+                      <div className="font-semibold text-lg">{userProfile?.full_name || user?.email}</div>
+                      <div className="text-xs text-muted-foreground">{user?.email}</div>
                     </div>
-                    
-                    {userProfile?.verified && <Badge variant="secondary" className="w-full justify-center">
-                        <UserCheck className="h-3 w-3 mr-1" />
-                        Verified Client
-                      </Badge>}
-                    
-                    <Button variant="ghost" onClick={handleSignOut} className="w-full justify-start">
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Sign Out
+                    <Button variant="destructive" size="sm" className="w-full mt-2" onClick={handleSignOut}>
+                      <LogOut className="h-4 w-4 mr-2" /> Sign Out
                     </Button>
                   </div>
                 </PopoverContent>
@@ -243,7 +227,7 @@ const Dashboard = () => {
           <div className="max-w-6xl mx-auto space-y-8">
             {/* Enhanced Stats Dashboard */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 bg-transparent">
-                <Card className="shadow-card border-0 bg-gradient-primary/10 backdrop-blur-sm hover:shadow-glow transition-all duration-300">
+                <Card className="shadow-card border-0 bg-gradient-primary/10 backdrop-blur-sm hover:shadow-glow transition-all duration-300 hover:scale-105">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -257,7 +241,7 @@ const Dashboard = () => {
                   </CardContent>
                 </Card>
                 
-                <Card className="shadow-card border-0 bg-gradient-hero/10 backdrop-blur-sm hover:shadow-glow transition-all duration-300">
+                <Card className="shadow-card border-0 bg-gradient-hero/10 backdrop-blur-sm hover:shadow-glow transition-all duration-300 hover:scale-105">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -271,7 +255,7 @@ const Dashboard = () => {
                   </CardContent>
                 </Card>
                 
-                <Card className="shadow-card border-0 bg-gradient-primary/5 backdrop-blur-sm hover:shadow-glow transition-all duration-300">
+                <Card className="shadow-card border-0 bg-gradient-primary/5 backdrop-blur-sm hover:shadow-glow transition-all duration-300 hover:scale-105">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -285,7 +269,7 @@ const Dashboard = () => {
                   </CardContent>
                 </Card>
                 
-                <Card className="shadow-card border-0 bg-gradient-hero/5 backdrop-blur-sm hover:shadow-glow transition-all duration-300">
+                <Card className="shadow-card border-0 bg-gradient-hero/5 backdrop-blur-sm hover:shadow-glow transition-all duration-300 hover:scale-105">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -316,32 +300,38 @@ const Dashboard = () => {
               {/* Primary Action Button */}
               <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="hero" size="lg" className="shadow-glow">
-                    <Sparkles className="h-5 w-5" />
-                    ✨ Create New Proposal
+                  <Button variant="hero" className="rounded-lg shadow-md transition-all duration-200 hover:scale-105">
+                    <Sparkles className="h-5 w-5 mr-2" /> Generate Proposal
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[500px]">
+                <DialogContent className="max-w-lg w-full rounded-2xl p-8 animate-fade-in">
                   <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold text-center">Create a New Proposal</DialogTitle>
+                    <DialogTitle className="text-lg font-bold mb-2">Generate New Proposal</DialogTitle>
                   </DialogHeader>
-                  <div className="space-y-6 py-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="title">Proposal Title</Label>
-                      <Input id="title" value={proposalTitle} onChange={e => setProposalTitle(e.target.value)} placeholder="Enter your proposal title..." className="w-full" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="description">Briefly describe the project...</Label>
-                      <Textarea id="description" value={projectDescription} onChange={e => setProjectDescription(e.target.value)} placeholder="Describe your project requirements, goals, and any specific details..." className="w-full min-h-[120px] resize-none" />
-                    </div>
-                    <Button onClick={handleGenerateProposal} disabled={isGenerating} className="w-full" variant="hero" size="lg">
-                      {isGenerating ? <>
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                          Generating...
-                        </> : <>
-                          <Sparkles className="h-4 w-4 mr-2" />
-                          Generate with AI
-                        </>}
+                  <div className="space-y-4">
+                    <Label htmlFor="proposalTitle" className="font-medium">Title</Label>
+                    <Input
+                      id="proposalTitle"
+                      value={proposalTitle}
+                      onChange={e => setProposalTitle(e.target.value)}
+                      placeholder="Enter proposal title"
+                      className="rounded-lg py-3 px-4 border border-input focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 shadow-sm hover:shadow-md"
+                    />
+                    <Label htmlFor="projectDescription" className="font-medium">Project Description</Label>
+                    <Textarea
+                      id="projectDescription"
+                      value={projectDescription}
+                      onChange={e => setProjectDescription(e.target.value)}
+                      placeholder="Describe your project..."
+                      className="rounded-lg py-3 px-4 border border-input focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 shadow-sm hover:shadow-md min-h-[100px]"
+                    />
+                    <Button
+                      onClick={handleGenerateProposal}
+                      disabled={isGenerating}
+                      className="w-full py-3 rounded-lg font-semibold text-lg shadow-md transition-all duration-200 hover:scale-[1.03] hover:shadow-lg focus:ring-2 focus:ring-primary focus:outline-none"
+                    >
+                      {isGenerating && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                      Generate
                     </Button>
                   </div>
                 </DialogContent>
@@ -355,19 +345,24 @@ const Dashboard = () => {
                   <p className="text-muted-foreground">Loading proposals...</p>
                 </div>
               </div> : proposals && proposals.length > 0 ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {proposals.map(proposal => <Card key={proposal.id} className="shadow-card border-0 bg-card/80 backdrop-blur-sm hover:shadow-glow transition-all duration-300 cursor-pointer" onClick={() => handleProposalClick(proposal)}>
-                    <CardHeader>
-                      <CardTitle className="text-lg font-bold line-clamp-2">
+                {proposals.map(proposal => <Card key={proposal.id} className="rounded-xl shadow-lg border-0 bg-card/90 backdrop-blur-md transition-all duration-200 hover:scale-[1.02] hover:shadow-2xl cursor-pointer animate-fade-in" onClick={() => handleProposalClick(proposal)}>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg font-bold truncate flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-primary" />
                         {proposal.title}
                       </CardTitle>
-                      <CardDescription className="text-sm text-muted-foreground">
-                        {format(new Date(proposal.created_at), 'MMMM d, yyyy')}
+                      <CardDescription className="text-xs text-muted-foreground">
+                        Created {format(new Date(proposal.created_at), 'PPP p')}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground line-clamp-3">
-                        {proposal.initial_prompt}
-                      </p>
+                    <CardContent className="pt-0">
+                      <div className="line-clamp-3 text-sm text-foreground/90">
+                        {typeof proposal.generated_content === 'string'
+                          ? proposal.generated_content
+                          : proposal.generated_content && typeof proposal.generated_content === 'object' && !Array.isArray(proposal.generated_content)
+                            ? (proposal.generated_content as any).overview || JSON.stringify(proposal.generated_content)
+                            : proposal.initial_prompt}
+                      </div>
                     </CardContent>
                   </Card>)}
               </div> : <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
