@@ -23,6 +23,7 @@ ISpaniBot is a cutting-edge AI-powered platform designed to revolutionize how fr
 - **🔐 Secure Authentication**: Built-in user authentication with Supabase Auth
 - **📱 Responsive Design**: Beautiful, mobile-first design that works on all devices
 - **⚡ Lightning Fast**: Built with Vite for optimal performance and development experience
+- **🧪 One-click Demo Access**: Auto-login for seamless community testing (no registration required)
 
 ## 🏗️ Architecture
 
@@ -170,6 +171,44 @@ The application will be available at `http://localhost:8080`
 - **Analytics Tab**: Detailed charts and performance metrics
 - **Earnings Tab**: Financial tracking and payment management
 - **Manage Proposals Tab**: Update proposal status and values
+
+### 🧪 Demo & Community Testing Mode (Auto-Login)
+
+#### What is Auto-Login?
+For hackathon/demo purposes, ISpaniBot supports a special auto-login mode that allows anyone with the app link to instantly access and test the platform—no registration or sign-in required. This is perfect for sharing your app on platforms like Padlet for community voting and feedback.
+
+#### How It Works
+- On app load, the frontend automatically calls a Supabase Edge Function (`auto-login`) that returns a valid session.
+- The session is stored in localStorage and injected into Supabase Auth, bypassing the login page entirely.
+- Users are redirected straight to the dashboard and can use all app features as a demo user.
+- The login page is never shown while auto-login is active.
+
+#### Edge Function Details
+- **URL:** `https://uufbuatrnoprynesbirw.supabase.co/functions/v1/auto-login`
+- **Response Format:**
+  ```json
+  {
+    "message": "Auto-login successful",
+    "session": {
+      "access_token": "...",
+      "refresh_token": "...",
+      "expires_at": 1234567890,
+      "user": { ... }
+    },
+    "user": { ... }
+  }
+  ```
+- **Integration:** See `src/lib/autoLogin.ts` and `src/contexts/AuthContext.tsx` for implementation details.
+
+#### How to Share for Community Testing
+1. **Deploy your app** (e.g., on Bolt.new, Vercel, Netlify, etc.).
+2. **Share the deployed link** on Padlet or other platforms.
+3. **Anyone with the link** will be auto-logged in and can test the app immediately—no sign up required!
+
+#### Disabling Auto-Login (for production)
+To revert to normal authentication, simply remove or comment out the auto-login logic in `AuthContext.tsx` and remove the `autoLogin` utility import. This will restore the standard sign up/sign in flow.
+
+---
 
 ## 🔧 Development
 

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { autoLogin } from '@/lib/autoLogin';
 
 interface AuthContextType {
   user: User | null;
@@ -40,10 +41,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session) {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      } else {
+        // Try auto-login if no session
+        setLoading(true);
+        try {
+          let autoSession = null;
+          const stored = localStorage.getItem('sb-autologin-session');
+          if (stored) {
+            autoSession = JSON.parse(stored);
+          } else {
+            autoSession = await autoLogin();
+          }
+          if (autoSession) {
+            await supabase.auth.setSession({
+              access_token: autoSession.access_token,
+              refresh_token: autoSession.refresh_token,
+            });
+            setSession(autoSession);
+            setUser(autoSession.user ?? null);
+          }
+        } catch (e) {
+          setSession(null);
+          setUser(null);
+        } finally {
+          setLoading(false);
+        }
+      }
     });
 
     return () => subscription.unsubscribe();

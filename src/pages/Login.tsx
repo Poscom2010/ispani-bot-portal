@@ -30,8 +30,15 @@ const Login = () => {
     if (savedEmail && savedPassword) setRememberMe(true);
   }, []);
 
-  // Redirect if already authenticated
-  if (!loading && user) {
+  // Bypass login: If loading, show spinner. If user, redirect to dashboard.
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-subtle">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+  if (user) {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -83,14 +90,6 @@ const Login = () => {
       setIsLoading(false);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-subtle">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-subtle p-4">
