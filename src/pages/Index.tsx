@@ -1,102 +1,112 @@
-import React from 'react';
-import { Navigate, Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
-import { ArrowRight, Sparkles, Zap, Shield } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2, ArrowRight, CheckCircle, XCircle } from 'lucide-react';
 import ispaniBotIcon from '@/assets/ispanibot-icon.png';
+import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
-  const { user, loading } = useAuth();
+  const [dbStatus, setDbStatus] = useState<'loading' | 'connected' | 'error'>('loading');
 
-  // Redirect authenticated users to dashboard
-  if (!loading && user) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  useEffect(() => {
+    // Test database connection
+    const testConnection = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('count')
+          .limit(1);
+        
+        if (error) {
+          console.log('Database test error:', error);
+          setDbStatus('error');
+        } else {
+          console.log('Database connection successful');
+          setDbStatus('connected');
+        }
+      } catch (err) {
+        console.log('Database connection failed:', err);
+        setDbStatus('error');
+      }
+    };
+
+    testConnection();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-subtle flex flex-col">
-      {/* Header */}
-      <header className="border-b bg-card/80 backdrop-blur-sm shadow-md animate-fade-in">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-hero rounded-xl flex items-center justify-center shadow-glow">
-              <img src={ispaniBotIcon} alt="ISpaniBot" className="h-6 w-6" />
-            </div>
-            <h1 className="text-xl font-bold bg-gradient-hero bg-clip-text text-transparent tracking-tight">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-subtle p-4">
+      <div className="w-full max-w-md space-y-8 animate-fade-in">
+        {/* Logo and Title */}
+        <div className="text-center space-y-4">
+          <div className="mx-auto w-16 h-16 bg-gradient-hero rounded-2xl flex items-center justify-center shadow-glow">
+            <img src={ispaniBotIcon} alt="ISpaniBot" className="h-10 w-10" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-4xl font-extrabold bg-gradient-hero bg-clip-text text-transparent tracking-tight">
               ISpaniBot
             </h1>
+            <p className="text-muted-foreground text-base">
+              Your AI-powered assistant for smarter conversations
+            </p>
           </div>
-          <Button asChild variant="hero" className="rounded-lg shadow-md transition-all duration-200 hover:scale-105">
-            <Link to="/auth">
-              Get Started
-              <ArrowRight className="h-4 w-4 ml-1" />
-            </Link>
-          </Button>
         </div>
-      </header>
 
-      {/* Hero Section */}
-      <main className="flex-1 flex items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background/60 to-accent/10 pointer-events-none animate-fade-in-slow" />
-        <div className="container mx-auto px-4 py-16 z-10">
-          <div className="max-w-4xl mx-auto text-center space-y-12 animate-fade-in">
-            <div className="space-y-4">
-              <div className="mx-auto w-20 h-20 bg-gradient-hero rounded-3xl flex items-center justify-center shadow-glow">
-                <img src={ispaniBotIcon} alt="ISpaniBot" className="h-12 w-12" />
-              </div>
-              <h1 className="text-5xl font-extrabold bg-gradient-hero bg-clip-text text-transparent tracking-tight drop-shadow-lg">
-                Welcome to ISpaniBot
-              </h1>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Your AI-powered assistant for creating intelligent proposals and managing your projects with ease
-              </p>
+        {/* Status Card */}
+        <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="text-lg">System Status</CardTitle>
+            <CardDescription>Checking database connection...</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-3">
+              {dbStatus === 'loading' && <Loader2 className="h-5 w-5 animate-spin text-primary" />}
+              {dbStatus === 'connected' && <CheckCircle className="h-5 w-5 text-green-500" />}
+              {dbStatus === 'error' && <XCircle className="h-5 w-5 text-red-500" />}
+              <span className="text-sm">
+                Database: {dbStatus === 'loading' ? 'Connecting...' : 
+                          dbStatus === 'connected' ? 'Connected' : 'Connection Failed'}
+              </span>
             </div>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild variant="hero" size="lg" className="rounded-lg shadow-lg transition-all duration-200 hover:scale-105">
-                <Link to="/auth">
-                  Start Creating
-                  <ArrowRight className="h-4 w-4 ml-1" />
-                </Link>
+            
+            {dbStatus === 'connected' && (
+              <div className="text-xs text-green-600 bg-green-50 p-2 rounded">
+                ✓ All systems operational
+              </div>
+            )}
+            
+            {dbStatus === 'error' && (
+              <div className="text-xs text-red-600 bg-red-50 p-2 rounded">
+                ⚠ Database connection issues detected
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Auth Card */}
+        <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm transition-all duration-500 animate-fade-in">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl text-center font-bold">
+              Welcome to ISpaniBot
+            </CardTitle>
+            <CardDescription className="text-center text-base">
+              Sign in to access your AI-powered workspace
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <Link to="/auth">
+              <Button
+                variant="hero"
+                size="lg"
+                className="w-full py-3 rounded-lg font-semibold text-lg shadow-md transition-all duration-200 hover:scale-[1.03] hover:shadow-lg focus:ring-2 focus:ring-primary focus:outline-none"
+              >
+                Get Started
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button asChild variant="ai" size="lg" className="rounded-lg shadow-lg transition-all duration-200 hover:scale-105">
-                <Link to="/auth">
-                  Sign In
-                </Link>
-              </Button>
-            </div>
-            {/* Features */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-              <div className="bg-card/80 rounded-2xl shadow-md p-6 text-center space-y-4 transition-all duration-200 hover:shadow-xl hover:-translate-y-1 animate-fade-in">
-                <div className="mx-auto w-12 h-12 bg-gradient-primary rounded-2xl flex items-center justify-center transition-transform duration-200 hover:scale-110">
-                  <Sparkles className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold">AI-Powered</h3>
-                <p className="text-muted-foreground">
-                  Generate intelligent proposals with advanced AI technology
-                </p>
-              </div>
-              <div className="bg-card/80 rounded-2xl shadow-md p-6 text-center space-y-4 transition-all duration-200 hover:shadow-xl hover:-translate-y-1 animate-fade-in delay-100">
-                <div className="mx-auto w-12 h-12 bg-gradient-primary rounded-2xl flex items-center justify-center transition-transform duration-200 hover:scale-110">
-                  <Zap className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold">Lightning Fast</h3>
-                <p className="text-muted-foreground">
-                  Create and manage proposals in minutes, not hours
-                </p>
-              </div>
-              <div className="bg-card/80 rounded-2xl shadow-md p-6 text-center space-y-4 transition-all duration-200 hover:shadow-xl hover:-translate-y-1 animate-fade-in delay-200">
-                <div className="mx-auto w-12 h-12 bg-gradient-primary rounded-2xl flex items-center justify-center transition-transform duration-200 hover:scale-110">
-                  <Shield className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold">Secure</h3>
-                <p className="text-muted-foreground">
-                  Your data is protected with enterprise-grade security
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

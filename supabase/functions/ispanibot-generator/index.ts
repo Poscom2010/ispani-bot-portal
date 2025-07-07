@@ -32,17 +32,26 @@ serve(async (req) => {
 
     const systemPrompt = `You are ISpaniBot, an expert freelance proposal generator specializing in creating professional, compelling proposals for various projects. 
 
-Your task is to generate a detailed proposal based on the user's project description. The proposal should be structured, professional, and tailored to win the project.
+Your task is to generate a concise, structured proposal based on the user's project description. The proposal should be professional, clear, and demonstrate capabilities while keeping each section brief for MVP purposes.
 
 Return your response as a JSON object with the following structure:
 {
-  "overview": "A compelling overview of the project and your approach",
-  "deliverables": ["List", "of", "key", "deliverables"],
-  "timeline": "Estimated timeline for completion",
-  "price": "Price suggestion (e.g., '$2,500 - $3,500')"
+  "title": "Professional project title",
+  "executive_summary": "A brief 1-2 sentence executive summary highlighting the key value proposition",
+  "problem_statement": "Clear, concise identification of the client's main needs and challenges",
+  "objectives": ["3-4 specific", "measurable", "objectives"],
+  "proposed_solution": "Brief methodology and approach to solving the problem",
+  "implementation_plan": "Concise timeline with key milestones",
+  "budget": {
+    "total_cost": "Total project cost (e.g., '$5,000 - $8,000')",
+    "breakdown": ["Planning: $1,000", "Development: $3,000", "Testing: $1,000"]
+  },
+  "team": "Brief description of team expertise and qualifications",
+  "risks": ["Key risk with brief mitigation", "Another risk with brief mitigation"],
+  "conclusion": "Strong, concise conclusion with clear next steps"
 }
 
-Make the proposal engaging, professional, and demonstrate expertise in the relevant field. Include specific deliverables that add value to the client.`;
+Keep each section brief but professional. Total proposal should be concise to demonstrate structure and capabilities for MVP. Use clear, actionable language.`;
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -57,7 +66,7 @@ Make the proposal engaging, professional, and demonstrate expertise in the relev
           { role: 'user', content: `Create a professional freelance proposal for this project: ${userPrompt}` }
         ],
         temperature: 0.7,
-        max_tokens: 1500,
+        max_tokens: 1000,
       }),
     });
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -36,6 +36,8 @@ const ProposalStatusManager: React.FC<ProposalStatusManagerProps> = ({ proposal 
     actual_value: proposal.actual_value?.toString() || '',
     completion_date: proposal.completion_date ? format(new Date(proposal.completion_date), 'yyyy-MM-dd') : ''
   });
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const updateProposalMutation = useMutation({
     mutationFn: async (updateData: any) => {
@@ -98,6 +100,31 @@ const ProposalStatusManager: React.FC<ProposalStatusManagerProps> = ({ proposal 
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const handleMarkAsPaid = async () => {
+    setUploading(true);
+    if (!fileInputRef.current?.files || !fileInputRef.current.files[0]) return;
+    const file = fileInputRef.current.files[0];
+    const filePath = `invoices/proposal_${proposal.id}_${Date.now()}_${file.name}`;
+    const { error: uploadError } = await supabase.storage.from('invoices').upload(filePath, file, { upsert: true });
+    if (uploadError) {
+      toast({ title: 'Upload Failed', description: uploadError.message, variant: 'destructive' });
+      setUploading(false);
+      return;
+    }
+    const { data } = supabase.storage.from('invoices').getPublicUrl(filePath);
+    const invoiceUrl = data.publicUrl;
+    // Try to update related earning if exists
+    const { data: earning } = await supabase.from('earnings').select('id').eq('proposal_id', proposal.id).maybeSingle();
+    if (earning?.id) {
+      await supabase.from('earnings').update({ status: 'paid', description: `Invoice: ${invoiceUrl}` }).eq('id', earning.id);
+    }
+    // Optionally update proposal status
+    await supabase.from('proposals').update({ status: 'completed' }).eq('id', proposal.id);
+    setUploading(false);
+    toast({ title: 'Marked as Paid', description: 'Proposal marked as paid and invoice attached.' });
+    queryClient.invalidateQueries({ queryKey: ['proposals'] });
   };
 
   return (
@@ -223,6 +250,30 @@ const ProposalStatusManager: React.FC<ProposalStatusManagerProps> = ({ proposal 
             <span className="text-sm text-muted-foreground">Created</span>
             <span className="text-sm">{format(new Date(proposal.created_at), 'MMM d, yyyy')}</span>
           </div>
+
+          {(proposal.status === 'pending' || proposal.status === 'approved') && (
+            <div className="mt-2">
+              <input
+                type="file"
+                accept=".pdf,.docx"
+                style={{ display: 'none' }}
+                ref={fileInputRef}
+                onChange={handleMarkAsPaid}
+              />
+              <Button
+                size="sm"
+                variant="hero"
+                className="rounded-lg font-semibold"
+                disabled={uploading}
+                onClick={e => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
+              >
+                {uploading ? 'Uploading...' : 'Mark as Paid & Attach Invoice'}
+              </Button>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

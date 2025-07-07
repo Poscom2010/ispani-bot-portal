@@ -13,7 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { DollarSign, Plus, Calendar, CheckCircle, Clock, X } from 'lucide-react';
 import { format } from 'date-fns';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 interface Earning {
   id: string;
@@ -39,6 +39,8 @@ const EarningsCard = () => {
     proposal_id: '',
     status: 'pending' as const
   });
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Fetch earnings
   const { data: earnings, isLoading } = useQuery({
@@ -177,6 +179,29 @@ const EarningsCard = () => {
   const pendingEarnings = earnings?.reduce((sum, earning) => 
     earning.status === 'pending' ? sum + earning.amount : sum, 0) || 0;
 
+  const handleMarkAsPaid = async (earningId: string, file: File) => {
+    setUploadingId(earningId);
+    // Upload invoice
+    const filePath = `invoices/${earningId}_${Date.now()}_${file.name}`;
+    const { error: uploadError } = await supabase.storage.from('invoices').upload(filePath, file, { upsert: true });
+    if (uploadError) {
+      toast({ title: 'Upload Failed', description: uploadError.message, variant: 'destructive' });
+      setUploadingId(null);
+      return;
+    }
+    const { data } = supabase.storage.from('invoices').getPublicUrl(filePath);
+    const invoiceUrl = data.publicUrl;
+    // Update earning status and attach invoice
+    const { error: updateError } = await supabase.from('earnings').update({ status: 'paid', description: `Invoice: ${invoiceUrl}` }).eq('id', earningId);
+    setUploadingId(null);
+    if (updateError) {
+      toast({ title: 'Update Failed', description: updateError.message, variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'Marked as Paid', description: 'Earning marked as paid and invoice attached.' });
+    queryClient.invalidateQueries({ queryKey: ['earnings'] });
+  };
+
   return (
     <Card className="shadow-card border-0 bg-card/90 backdrop-blur-sm">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -307,17 +332,28 @@ const EarningsCard = () => {
                         {earning.status}
                       </Badge>
                       {earning.status === 'pending' && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => updateEarningMutation.mutate({ 
-                            id: earning.id, 
-                            status: 'paid' 
-                          })}
-                          disabled={updateEarningMutation.isPending}
-                        >
-                          Mark Paid
-                        </Button>
+                        <div className="mt-2">
+                          <input
+                            type="file"
+                            accept=".pdf,.docx"
+                            style={{ display: 'none' }}
+                            ref={fileInputRef}
+                            onChange={e => {
+                              if (e.target.files && e.target.files[0]) {
+                                handleMarkAsPaid(earning.id, e.target.files[0]);
+                              }
+                            }}
+                          />
+                          <Button
+                            size="sm"
+                            variant="hero"
+                            className="rounded-lg font-semibold"
+                            disabled={uploadingId === earning.id}
+                            onClick={() => fileInputRef.current?.click()}
+                          >
+                            {uploadingId === earning.id ? 'Uploading...' : 'Mark as Paid & Attach Invoice'}
+                          </Button>
+                        </div>
                       )}
                     </div>
                   </div>
