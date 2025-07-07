@@ -65,7 +65,7 @@ export type Database = {
           hourly_rate: number | null
           location: string | null
           avatar_url: string | null
-          role: 'freelancer' | 'client' | 'both' | null
+          role: Database["public"]["Enums"]["user_role"]
         }
         Insert: {
           created_at?: string | null
@@ -78,7 +78,7 @@ export type Database = {
           hourly_rate?: number | null
           location?: string | null
           avatar_url?: string | null
-          role?: 'freelancer' | 'client' | 'both' | null
+          role?: Database["public"]["Enums"]["user_role"]
         }
         Update: {
           created_at?: string | null
@@ -91,9 +91,17 @@ export type Database = {
           hourly_rate?: number | null
           location?: string | null
           avatar_url?: string | null
-          role?: 'freelancer' | 'client' | 'both' | null
+          role?: Database["public"]["Enums"]["user_role"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       proposal_metrics: {
         Row: {
@@ -186,7 +194,7 @@ export type Database = {
           id: string
           title: string
           description: string
-          posted_by: string
+          posted_by: string | null
           pay_per_hour: number | null
           deadline: string | null
           status: string | null
@@ -197,7 +205,7 @@ export type Database = {
           id?: string
           title: string
           description: string
-          posted_by: string
+          posted_by?: string | null
           pay_per_hour?: number | null
           deadline?: string | null
           status?: string | null
@@ -208,7 +216,7 @@ export type Database = {
           id?: string
           title?: string
           description?: string
-          posted_by?: string
+          posted_by?: string | null
           pay_per_hour?: number | null
           deadline?: string | null
           status?: string | null
@@ -228,8 +236,8 @@ export type Database = {
       messages: {
         Row: {
           id: string
-          sender_id: string
-          receiver_id: string
+          sender_id: string | null
+          receiver_id: string | null
           job_id: string | null
           proposal_id: string | null
           content: string | null
@@ -238,8 +246,8 @@ export type Database = {
         }
         Insert: {
           id?: string
-          sender_id: string
-          receiver_id: string
+          sender_id?: string | null
+          receiver_id?: string | null
           job_id?: string | null
           proposal_id?: string | null
           content?: string | null
@@ -248,8 +256,8 @@ export type Database = {
         }
         Update: {
           id?: string
-          sender_id?: string
-          receiver_id?: string
+          sender_id?: string | null
+          receiver_id?: string | null
           job_id?: string | null
           proposal_id?: string | null
           content?: string | null
@@ -287,298 +295,353 @@ export type Database = {
           },
         ]
       }
+      invoices: {
+        Row: {
+          id: string
+          proposal_id: string | null
+          sender_id: string | null
+          receiver_id: string | null
+          amount: number
+          status: string | null
+          file_url: string | null
+          issued_at: string | null
+          paid_at: string | null
+        }
+        Insert: {
+          id?: string
+          proposal_id?: string | null
+          sender_id?: string | null
+          receiver_id?: string | null
+          amount: number
+          status?: string | null
+          file_url?: string | null
+          issued_at?: string | null
+          paid_at?: string | null
+        }
+        Update: {
+          id?: string
+          proposal_id?: string | null
+          sender_id?: string | null
+          receiver_id?: string | null
+          amount?: number
+          status?: string | null
+          file_url?: string | null
+          issued_at?: string | null
+          paid_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_applications: {
         Row: {
-          id: string;
-          job_id: string;
-          applicant_id: string;
-          cover_letter: string | null;
-          status: string | null;
-          proposed_rate: number | null;
-          file_url: string | null;
-          created_at: string | null;
-        };
+          id: string
+          job_id: string | null
+          applicant_id: string | null
+          cover_letter: string | null
+          status: string | null
+          proposed_rate: number | null
+          file_url: string | null
+          created_at: string | null
+        }
         Insert: {
-          id?: string;
-          job_id: string;
-          applicant_id: string;
-          cover_letter?: string | null;
-          status?: string | null;
-          proposed_rate?: number | null;
-          file_url?: string | null;
-          created_at?: string | null;
-        };
+          id?: string
+          job_id?: string | null
+          applicant_id?: string | null
+          cover_letter?: string | null
+          status?: string | null
+          proposed_rate?: number | null
+          file_url?: string | null
+          created_at?: string | null
+        }
         Update: {
-          id?: string;
-          job_id?: string;
-          applicant_id?: string;
-          cover_letter?: string | null;
-          status?: string | null;
-          proposed_rate?: number | null;
-          file_url?: string | null;
-          created_at?: string | null;
-        };
+          id?: string
+          job_id?: string | null
+          applicant_id?: string | null
+          cover_letter?: string | null
+          status?: string | null
+          proposed_rate?: number | null
+          file_url?: string | null
+          created_at?: string | null
+        }
         Relationships: [
           {
-            foreignKeyName: "job_applications_job_id_fkey",
-            columns: ["job_id"],
-            isOneToOne: false,
-            referencedRelation: "jobs",
+            foreignKeyName: "job_applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "job_applications_applicant_id_fkey",
-            columns: ["applicant_id"],
-            isOneToOne: false,
-            referencedRelation: "profiles",
+            foreignKeyName: "job_applications_applicant_id_fkey"
+            columns: ["applicant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
-          }
-        ];
-      },
-      job_milestones: {
-        Row: {
-          id: string;
-          job_id: string;
-          title: string;
-          description: string | null;
-          due_date: string | null;
-          status: string | null;
-          amount: number | null;
-          created_at: string | null;
-        };
-        Insert: {
-          id?: string;
-          job_id: string;
-          title: string;
-          description?: string | null;
-          due_date?: string | null;
-          status?: string | null;
-          amount?: number | null;
-          created_at?: string | null;
-        };
-        Update: {
-          id?: string;
-          job_id?: string;
-          title?: string;
-          description?: string | null;
-          due_date?: string | null;
-          status?: string | null;
-          amount?: number | null;
-          created_at?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "job_milestones_job_id_fkey",
-            columns: ["job_id"],
-            isOneToOne: false,
-            referencedRelation: "jobs",
-            referencedColumns: ["id"]
-          }
-        ];
-      },
+          },
+        ]
+      }
       skills: {
         Row: {
-          id: string;
-          name: string;
-          category: string | null;
-        };
+          id: string
+          name: string
+          category: string | null
+        }
         Insert: {
-          id?: string;
-          name: string;
-          category?: string | null;
-        };
+          id?: string
+          name: string
+          category?: string | null
+        }
         Update: {
-          id?: string;
-          name?: string;
-          category?: string | null;
-        };
-        Relationships: [];
-      },
+          id?: string
+          name?: string
+          category?: string | null
+        }
+        Relationships: []
+      }
       job_skills: {
         Row: {
-          id: string;
-          job_id: string;
-          skill_id: string;
-          importance_level: string | null;
-          is_required: boolean;
-        };
+          id: string
+          job_id: string | null
+          skill_id: string | null
+          importance_level: string | null
+          is_required: boolean
+        }
         Insert: {
-          id?: string;
-          job_id: string;
-          skill_id: string;
-          importance_level?: string | null;
-          is_required: boolean;
-        };
+          id?: string
+          job_id?: string | null
+          skill_id?: string | null
+          importance_level?: string | null
+          is_required?: boolean
+        }
         Update: {
-          id?: string;
-          job_id?: string;
-          skill_id?: string;
-          importance_level?: string | null;
-          is_required?: boolean;
-        };
+          id?: string
+          job_id?: string | null
+          skill_id?: string | null
+          importance_level?: string | null
+          is_required?: boolean
+        }
         Relationships: [
           {
-            foreignKeyName: "job_skills_job_id_fkey",
-            columns: ["job_id"],
-            isOneToOne: false,
-            referencedRelation: "jobs",
+            foreignKeyName: "job_skills_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "job_skills_skill_id_fkey",
-            columns: ["skill_id"],
-            isOneToOne: false,
-            referencedRelation: "skills",
-            referencedColumns: ["id"]
-          }
-        ];
-      },
-      notifications: {
-        Row: {
-          id: string;
-          user_id: string;
-          type: string;
-          content: string;
-          is_read: boolean;
-          created_at: string | null;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          type: string;
-          content: string;
-          is_read?: boolean;
-          created_at?: string | null;
-        };
-        Update: {
-          id?: string;
-          user_id?: string;
-          type?: string;
-          content?: string;
-          is_read?: boolean;
-          created_at?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "notifications_user_id_fkey",
-            columns: ["user_id"],
-            isOneToOne: false,
-            referencedRelation: "users",
-            referencedColumns: ["id"]
-          }
-        ];
-      },
-      reviews: {
-        Row: {
-          id: string;
-          reviewer_id: string;
-          reviewee_id: string;
-          job_id: string;
-          rating: number;
-          comment: string | null;
-          created_at: string | null;
-        };
-        Insert: {
-          id?: string;
-          reviewer_id: string;
-          reviewee_id: string;
-          job_id: string;
-          rating: number;
-          comment?: string | null;
-          created_at?: string | null;
-        };
-        Update: {
-          id?: string;
-          reviewer_id?: string;
-          reviewee_id?: string;
-          job_id?: string;
-          rating?: number;
-          comment?: string | null;
-          created_at?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "reviews_reviewer_id_fkey",
-            columns: ["reviewer_id"],
-            isOneToOne: false,
-            referencedRelation: "profiles",
+            foreignKeyName: "job_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "reviews_reviewee_id_fkey",
-            columns: ["reviewee_id"],
-            isOneToOne: false,
-            referencedRelation: "profiles",
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reviews_job_id_fkey",
-            columns: ["job_id"],
-            isOneToOne: false,
-            referencedRelation: "jobs",
-            referencedColumns: ["id"]
-          }
-        ];
-      },
+        ]
+      }
       profile_skills: {
         Row: {
-          id: string;
-          profile_id: string;
-          skill_id: string;
-          proficiency_level: string;
-          years_experience: number;
-        };
+          id: string
+          profile_id: string | null
+          skill_id: string | null
+          proficiency_level: string
+          years_experience: number
+        }
         Insert: {
-          id?: string;
-          profile_id: string;
-          skill_id: string;
-          proficiency_level: string;
-          years_experience: number;
-        };
+          id?: string
+          profile_id?: string | null
+          skill_id?: string | null
+          proficiency_level: string
+          years_experience: number
+        }
         Update: {
-          id?: string;
-          profile_id?: string;
-          skill_id?: string;
-          proficiency_level?: string;
-          years_experience?: number;
-        };
+          id?: string
+          profile_id?: string | null
+          skill_id?: string | null
+          proficiency_level?: string
+          years_experience?: number
+        }
         Relationships: [
           {
-            foreignKeyName: "profile_skills_profile_id_fkey",
-            columns: ["profile_id"],
-            isOneToOne: false,
-            referencedRelation: "profiles",
+            foreignKeyName: "profile_skills_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "profile_skills_skill_id_fkey",
-            columns: ["skill_id"],
-            isOneToOne: false,
-            referencedRelation: "skills",
+            foreignKeyName: "profile_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
             referencedColumns: ["id"]
-          }
-        ];
-      },
+          },
+        ]
+      }
+      job_milestones: {
+        Row: {
+          id: string
+          job_id: string | null
+          title: string
+          description: string | null
+          due_date: string | null
+          status: string | null
+          amount: number | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          job_id?: string | null
+          title: string
+          description?: string | null
+          due_date?: string | null
+          status?: string | null
+          amount?: number | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          job_id?: string | null
+          title?: string
+          description?: string | null
+          due_date?: string | null
+          status?: string | null
+          amount?: number | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_milestones_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviews: {
+        Row: {
+          id: string
+          reviewer_id: string | null
+          reviewee_id: string | null
+          job_id: string | null
+          rating: number
+          comment: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          reviewer_id?: string | null
+          reviewee_id?: string | null
+          job_id?: string | null
+          rating: number
+          comment?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          reviewer_id?: string | null
+          reviewee_id?: string | null
+          job_id?: string | null
+          rating?: number
+          comment?: string | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_reviewee_id_fkey"
+            columns: ["reviewee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          type: string
+          content: string
+          is_read: boolean | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          type: string
+          content: string
+          is_read?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          type?: string
+          content?: string
+          is_read?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never;
-    };
-    // Custom RPCs
-    get_conversations: {
-      Args: { current_user_id: string };
-      Returns: any[];
-    };
+      get_conversations: {
+        Args: { current_user_id: string }
+        Returns: any[]
+      }
+    }
     Enums: {
       earning_status: "pending" | "paid" | "cancelled"
-      proposal_status:
-        | "draft"
-        | "pending"
-        | "approved"
-        | "rejected"
-        | "completed"
+      proposal_status: "draft" | "pending" | "approved" | "rejected" | "completed"
+      user_role: "freelancer" | "client" | "both"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -702,6 +765,7 @@ export const Constants = {
         "rejected",
         "completed",
       ],
+      user_role: ["freelancer", "client", "both"],
     },
   },
 } as const

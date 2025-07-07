@@ -1,0 +1,57 @@
+/*
+  # Create notifications table
+  
+  1. New Tables
+    - `notifications` - User notifications system
+  
+  2. Security
+    - Enable RLS on notifications table
+    - Add policies for user data access
+  
+  3. Performance
+    - Add indexes for common queries
+    - Add trigger for updated_at
+*/
+
+-- Create notifications table
+CREATE TABLE IF NOT EXISTS public.notifications (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    type TEXT NOT NULL,
+    content TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create index for faster queries
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON public.notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON public.notifications(created_at DESC);
+
+-- Enable RLS
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policies (drop if exists first)
+DROP POLICY IF EXISTS "Users can view their own notifications" ON public.notifications;
+CREATE POLICY "Users can view their own notifications" ON public.notifications
+    FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update their own notifications" ON public.notifications;
+CREATE POLICY "Users can update their own notifications" ON public.notifications
+    FOR UPDATE USING (auth.uid() = user_id);
+
+-- Create function to update updated_at timestamp (replace if exists)
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Create trigger for updated_at (drop if exists first)
+DROP TRIGGER IF EXISTS update_notifications_updated_at ON public.notifications;
+CREATE TRIGGER update_notifications_updated_at 
+    BEFORE UPDATE ON public.notifications 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
